@@ -27,19 +27,9 @@ impl App {
     ) -> String {
         let mut notices = Vec::new();
         if !browser_opened {
-            crate::telemetry::record_auth_surface_blocked_reason(
-                provider_id,
-                "oauth",
-                crate::auth::login_diagnostics::AuthFailureReason::BrowserOpenFailed.label(),
-            );
             notices.push("This machine could not open a browser automatically.".to_string());
         }
         if matches!(callback_available, Some(false)) {
-            crate::telemetry::record_auth_surface_blocked_reason(
-                provider_id,
-                "oauth",
-                crate::auth::login_diagnostics::AuthFailureReason::CallbackPortUnavailable.label(),
-            );
             if let Some(target) = callback_target {
                 notices.push(format!(
                     "Local callback target `{}` is unavailable, so jcode is using manual-safe paste completion instead.",
@@ -164,7 +154,6 @@ impl App {
     }
 
     pub(super) fn show_interactive_login(&mut self) {
-        crate::telemetry::record_setup_step_once("login_picker_opened");
         self.open_login_picker_inline();
         self.set_status_notice("Login: choose a provider");
     }
@@ -173,7 +162,6 @@ impl App {
         &mut self,
         provider: crate::provider_catalog::LoginProviderDescriptor,
     ) {
-        crate::telemetry::record_provider_selected(provider.id);
         match provider.target {
             crate::provider_catalog::LoginProviderTarget::AutoImport => {
                 match crate::cli::provider_init::pending_external_auth_review_candidates() {

@@ -173,7 +173,6 @@ pub async fn run_login(
                     "Scriptable login flags require an explicit provider. Use `jcode login --provider <provider> ...`."
                 );
             }
-            crate::telemetry::record_setup_step_once("login_picker_opened");
             let providers = crate::provider_catalog::cli_login_providers();
             if !io::stdin().is_terminal() {
                 anyhow::bail!(
@@ -206,8 +205,6 @@ pub async fn run_login_provider(
     account_label: Option<&str>,
     options: LoginOptions,
 ) -> Result<()> {
-    crate::telemetry::record_provider_selected(provider.id);
-    crate::telemetry::record_auth_started(provider.id, provider.auth_kind.label());
     let explicit_scriptable_flow = options.uses_scriptable_flow()?;
     let auto_scriptable_reason = if explicit_scriptable_flow {
         None
@@ -217,11 +214,6 @@ pub async fn run_login_provider(
     let login_result = if explicit_scriptable_flow {
         run_scriptable_login_provider(provider, account_label, &options).await
     } else if let Some(reason) = auto_scriptable_reason {
-        crate::telemetry::record_auth_surface_blocked_reason(
-            provider.id,
-            provider.auth_kind.label(),
-            reason,
-        );
         if !options.json {
             eprintln!(
                 "Detected a manual-safe login environment for {}. Starting the auth URL flow instead of browser-first login.",
@@ -284,11 +276,6 @@ pub async fn run_login_provider(
         Err(err) => {
             let reason =
                 crate::auth::login_diagnostics::classify_auth_failure_message(&err.to_string());
-            crate::telemetry::record_auth_failed_reason(
-                provider.id,
-                provider.auth_kind.label(),
-                reason.label(),
-            );
             return Err(anyhow::anyhow!(
                 crate::auth::login_diagnostics::augment_auth_error_message(
                     provider.id,
@@ -304,11 +291,6 @@ pub async fn run_login_provider(
     if let Err(err) = super::commands::run_post_login_validation(provider).await {
         let reason =
             crate::auth::login_diagnostics::classify_auth_failure_message(&err.to_string());
-        crate::telemetry::record_auth_failed_reason(
-            provider.id,
-            provider.auth_kind.label(),
-            reason.label(),
-        );
         return Err(anyhow::anyhow!(
             crate::auth::login_diagnostics::augment_auth_error_message(
                 provider.id,
@@ -461,7 +443,6 @@ fn login_openai_api_key_flow() -> Result<()> {
             .display()
     );
     eprintln!("Provider: openai-api (native OpenAI Responses API)");
-    crate::telemetry::record_auth_success("openai-api", "api_key");
     Ok(())
 }
 
@@ -490,7 +471,6 @@ async fn login_claude_flow(requested_label: Option<&str>, no_browser: bool) -> R
     if let Some(email) = profile_email {
         eprintln!("Profile email: {}", email);
     }
-    crate::telemetry::record_auth_success("claude", "oauth");
     Ok(())
 }
 

@@ -207,12 +207,6 @@ impl Agent {
         agent.session.ensure_initial_session_context_message();
         agent.seed_compaction_from_session();
         agent.log_env_snapshot("create");
-        crate::telemetry::begin_session_with_parent(
-            agent.provider.name(),
-            &agent.provider.model(),
-            agent.session.parent_id.clone(),
-            false,
-        );
         agent
     }
 
@@ -245,12 +239,6 @@ impl Agent {
         agent.sync_memory_dedup_state_from_session();
         agent.seed_compaction_from_session();
         agent.log_env_snapshot("attach");
-        crate::telemetry::begin_session_with_parent(
-            agent.provider.name(),
-            &agent.provider.model(),
-            agent.session.parent_id.clone(),
-            false,
-        );
         agent
     }
 
@@ -652,11 +640,6 @@ impl Agent {
 
     /// Mark this agent session as closed and persist it.
     pub fn mark_closed(&mut self) {
-        crate::telemetry::end_session_with_reason(
-            self.provider.name(),
-            &self.provider.model(),
-            crate::telemetry::SessionEndReason::NormalExit,
-        );
         self.persist_soft_interrupt_snapshot();
         self.session.mark_closed();
         if !self.session.messages.is_empty() {
@@ -665,11 +648,6 @@ impl Agent {
     }
 
     pub fn mark_crashed(&mut self, message: Option<String>) {
-        crate::telemetry::record_crash(
-            self.provider.name(),
-            &self.provider.model(),
-            crate::telemetry::SessionEndReason::Unknown,
-        );
         self.persist_soft_interrupt_snapshot();
         self.session.mark_crashed(message);
         if !self.session.messages.is_empty() {
