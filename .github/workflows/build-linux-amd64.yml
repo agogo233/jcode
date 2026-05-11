@@ -36,21 +36,18 @@ jobs:
         with:
           key: build-linux-amd64
 
-      - name: Install musl tools and OpenSSL
+      - name: Install musl tools
         run: |
           sudo apt-get update -qq
           sudo apt-get install -y -qq musl-tools
-          sudo apt-get install -y -qq libssl-dev
 
-      - name: Build release binary (static)
+      - name: Build release binary (static with vendored OpenSSL)
         shell: bash
         run: |
           if command -v sccache &>/dev/null && sccache --start-server 2>/dev/null; then
             export RUSTC_WRAPPER=sccache
           fi
-          export OPENSSL_DIR=/usr
-          export PKG_CONFIG_SYSROOT_DIR=/
-          cargo build --release --target x86_64-unknown-linux-musl
+          cargo build --release --target x86_64-unknown-linux-musl --features openssl/vendored
 
       - name: Package binary
         run: |
