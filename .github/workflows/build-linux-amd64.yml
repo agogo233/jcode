@@ -47,7 +47,7 @@ jobs:
           if command -v sccache &>/dev/null && sccache --start-server 2>/dev/null; then
             export RUSTC_WRAPPER=sccache
           fi
-          cargo build --release --target x86_64-unknown-linux-musl --features openssl/vendored
+          cargo build --release --target x86_64-unknown-linux-musl
 
       - name: Package binary
         run: |
