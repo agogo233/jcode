@@ -103,9 +103,13 @@ futures = "0.3"
 async-trait = "0.1"
 
 # HTTP client
-reqwest = { version = "0.12", features = ["json", "stream", "blocking", "rustls-tls"], default-features = false }
+reqwest = { version = "0.12", default-features = false, features = ["json", "stream", "blocking", "rustls-tls"] }
 rustls = { version = "0.23", default-features = false, features = ["aws_lc_rs"] }
-tokio-tungstenite = { version = "0.24", default-features = false, features = ["connect", "rustls-tls-native-roots"] }
+tokio-tungstenite = { version = "0.24", default-features = false, features = ["rustls-tls-native-roots"] }
+
+[target.'cfg(windows)'.dependencies]
+native-tls = "0.2"
+hyper-tls = "0.6"
 
 # Serialization
 serde = { version = "1", features = ["derive"] }
