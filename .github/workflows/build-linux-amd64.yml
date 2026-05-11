@@ -45,12 +45,11 @@ jobs:
         shell: bash
         run: |
           rm -f Cargo.lock
+          rm -rf target
           cargo generate-lockfile
           if command -v sccache &>/dev/null && sccache --start-server 2>/dev/null; then
             export RUSTC_WRAPPER=sccache
           fi
-          export OPENSSL_DIR=/usr
-          export PKG_CONFIG_SYSROOT_DIR=/
           cargo build --release --target x86_64-unknown-linux-musl
 
       - name: Package binary
