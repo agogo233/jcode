@@ -41,6 +41,17 @@ jobs:
           sudo apt-get update -qq
           sudo apt-get install -y -qq musl-tools
 
+      - name: Diagnose openssl-sys dependency source
+        shell: bash
+        run: |
+          cargo generate-lockfile
+          echo "=== Who needs openssl-sys? ==="
+          cargo tree --target x86_64-unknown-linux-musl -i openssl-sys -e features 2>/dev/null || echo "(not in tree)"
+          echo "=== Who needs native-tls? ==="
+          cargo tree --target x86_64-unknown-linux-musl -i native-tls -e features 2>/dev/null || echo "(not in tree)"
+          echo "=== Who needs hyper-tls? ==="
+          cargo tree --target x86_64-unknown-linux-musl -i hyper-tls -e features 2>/dev/null || echo "(not in tree)"
+
       - name: Build release binary (static)
         shell: bash
         run: |
