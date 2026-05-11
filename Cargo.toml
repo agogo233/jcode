@@ -149,7 +149,7 @@ jcode-auth-types = { path = "crates/jcode-auth-types" }
 jcode-azure-auth = { path = "crates/jcode-azure-auth" }
 jcode-agent-runtime = { path = "crates/jcode-agent-runtime" }
 jcode-ambient-types = { path = "crates/jcode-ambient-types" }
-jcode-notify-email = { path = "crates/jcode-notify-email" }
+jcode-notify-email = { path = "crates/jcode-notify-email", optional = true }
 jcode-provider-metadata = { path = "crates/jcode-provider-metadata" }
 jcode-provider-core = { path = "crates/jcode-provider-core" }
 jcode-provider-openai = { path = "crates/jcode-provider-openai" }
@@ -239,6 +239,7 @@ jemalloc-prof = [
 ]
 embeddings = ["dep:jcode-embedding"]
 pdf = ["dep:jcode-pdf"]
+notify-email = ["dep:jcode-notify-email"]
 
 [target.'cfg(windows)'.dependencies]
 native-tls = "0.2"
