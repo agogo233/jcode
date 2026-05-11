@@ -36,10 +36,25 @@ jobs:
         with:
           key: build-linux-amd64
 
-      - name: Install musl tools and OpenSSL
+      - name: Install musl tools
         run: |
           sudo apt-get update -qq
-          sudo apt-get install -y -qq musl-tools libssl-dev
+          sudo apt-get install -y -qq musl-tools
+
+      - name: Build OpenSSL for musl
+        run: |
+          OPENSSL_VERSION="1.1.1w"
+          curl -fsSL "https://www.openssl.org/source/openssl-${OPENSSL_VERSION}.tar.gz" -o /tmp/openssl.tar.gz
+          mkdir -p /tmp/openssl-musl
+          tar xzf /tmp/openssl.tar.gz -C /tmp/openssl-musl --strip-components=1
+          cd /tmp/openssl-musl
+          CC=musl-gcc ./Configure linux-x86_64 no-shared no-tests --prefix=/usr/local/musl --openssldir=/usr/local/musl/ssl
+          make -j$(nproc)
+          sudo make install_sw
+          echo "OPENSSL_DIR=/usr/local/musl" >> $GITHUB_ENV
+          echo "OPENSSL_STATIC=1" >> $GITHUB_ENV
+          echo "PKG_CONFIG_ALLOW_CROSS=1" >> $GITHUB_ENV
+          echo "PKG_CONFIG_SYSROOT_DIR=/usr/local/musl" >> $GITHUB_ENV
 
       - name: Build release binary (static)
         shell: bash
