@@ -10,7 +10,7 @@ path = "src/lib.rs"
 [dependencies]
 anyhow = "1"
 chrono = "0.4"
-imap = { version = "3.0.0-alpha.15", default-features = false, features = ["rustls-native-tls"], optional = true }
+imap = { version = "3.0.0-alpha.15", default-features = false, features = ["rustls-tls"], optional = true }
 
 [target.'cfg(windows)'.dependencies]
 native-tls = "0.2"
